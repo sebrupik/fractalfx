@@ -47,8 +47,10 @@ public class SwingMandelbrot extends JFrame {
             this.ZOOM = ZOOM;
             
             pallete = new int[MAX_ITER];
-            for (int i = 0; i<pallete.length; i++) 
-                pallete[i] = Color.HSBtoRGB(i/256f, 1, i/(i+8f));
+            for (int i = 0; i<pallete.length; i++) {
+                pallete[i] = java.awt.Color.HSBtoRGB(i/256f, 1, i/(i+8f));
+                System.out.println(pallete[i]);
+            } 
             
             addMouseListener( new MouseListener() {
                 @Override public void mouseClicked(MouseEvent e) {
