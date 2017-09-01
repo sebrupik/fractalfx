@@ -31,13 +31,12 @@ public class stage2 extends Application {
     private int[] pallete;
     private final AtomicBoolean calculationInProgress = new AtomicBoolean();
     
-    
     public static void main(String[] args) {
         launch(args);
     }
     
     @Override public void start(Stage primaryStage) {
-        primaryStage.setTitle("Mandelbrot stage 1");
+        primaryStage.setTitle("Mandelbrot stage 2");
         
         pallete = new int[MAX_ITER];
         for (int i = 0; i<pallete.length; i++)
@@ -82,10 +81,8 @@ public class stage2 extends Application {
             for (int y = yVal; y < height; y++) {
                 c_re = (x - width/2) *4.0/ xory;
                 c_im = (y - height/2) *4.0/ xory;
-
-                cValue = mandelbrot(c_re, c_im) * 255/MAX_ITER;
-                WI.getPixelWriter().setColor(x, y, Color.rgb(cValue, cValue, cValue, 1.0));
-                //WI.getPixelWriter().setArgb(x, y, pallete[mandelbrot(c_re, c_im)]);
+                
+                WI.getPixelWriter().setArgb(x, y, pallete[mandelbrot(c_re, c_im)]);
             }
         }
         return WI;

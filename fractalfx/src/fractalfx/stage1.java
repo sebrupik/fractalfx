@@ -14,7 +14,7 @@ import javafx.stage.Stage;
  */
 public class stage1 extends Application {
     private ImageView currentImageView;
-    private final int MAX_ITER = 50;
+    private final int MAX_ITER = 20;
     private double zx, zy, c_re, c_im, tmp;
     
     public static void main(String[] args) {
@@ -24,7 +24,7 @@ public class stage1 extends Application {
     @Override public void start(Stage primaryStage) {
         primaryStage.setTitle("Mandelbrot stage 1");
         Group root = new Group();
-        Scene scene = new Scene(root, 800, 600, Color.BLACK);
+        Scene scene = new Scene(root, 400, 400, Color.BLACK);
         
         primaryStage.setScene(scene);
         
