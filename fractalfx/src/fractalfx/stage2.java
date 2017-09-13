@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fractalfx;
  
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,12 +18,14 @@ import javafx.stage.Stage;
  */
 public class stage2 extends Application {
     private ImageView currentImageView;
-    private final int MAX_ITER = 50;
-    private double ZOOM;
+    private final int MAX_ITER = 750;
+    private double ZOOM = 0.02;
+    private double offsetX = 0.0;
+    private double offsetY = 0.0;
     private WritableImage WI;
     private double zx, zy, c_re, c_im, tmp;
     private int iter, height, width;
-    private int[] pallete;
+    private int[] palette;
     private final AtomicBoolean calculationInProgress = new AtomicBoolean();
     
     public static void main(String[] args) {
@@ -38,13 +35,12 @@ public class stage2 extends Application {
     @Override public void start(Stage primaryStage) {
         primaryStage.setTitle("Mandelbrot stage 2");
         
-        pallete = new int[MAX_ITER];
-        for (int i = 0; i<pallete.length; i++)
-            pallete[i] = java.awt.Color.HSBtoRGB(i/256f, 1, i/(i+8f));
-        
+        palette = new int[MAX_ITER];
+        for (int i = 0; i<palette.length; i++)
+            palette[i] = java.awt.Color.HSBtoRGB(i/256f, 1, i/(i+8f));
         
         Group root = new Group();
-        Scene scene = new Scene(root, 800, 600, Color.BLACK);
+        Scene scene = new Scene(root, 400, 300, Color.BLACK);
         
         scene.widthProperty().addListener((changed, oldVal, newVal) -> { width = (int)scene.getWidth(); calculate(); } );
         scene.heightProperty().addListener((changed, oldVal, newVal) -> { height = (int)scene.getHeight(); calculate(); } );
@@ -62,27 +58,34 @@ public class stage2 extends Application {
         imageView.setPreserveRatio(true);
         imageView.fitWidthProperty().bind(scene.widthProperty());
         
-        imageView.addEventHandler(MouseEvent.MOUSE_PRESSED, (mouseEvent) -> {
-           System.out.printf("Mouse pressed in imageView (%f : %f", mouseEvent.getX(), mouseEvent.getY());
+        imageView.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
+           if(mouseEvent.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+               ZOOM = ZOOM * 0.5;
+           }
+           if(mouseEvent.getButton() == javafx.scene.input.MouseButton.SECONDARY) {
+               ZOOM = ZOOM / 0.5;
+           }
+           offsetX = offsetX+ ZOOM *(mouseEvent.getX()-(width/2));
+           offsetY = offsetY+ ZOOM *(mouseEvent.getY()-(height/2));
+           System.out.printf("offset (x/y): (%f / %f)", offsetX, offsetY);
            
+           calculate();
         });
         
         return imageView;
     }
     
-    private WritableImage createMandelbrotImage(int xVal, int yVal) {
+    private WritableImage createMandelbrotImage() {
         System.out.println("runCalculation");
         WI = new WritableImage(width, height);
-        int xory = Math.min(width, height);
         
-        int cValue;
-        
-        for (int x = xVal; x < width; x++) {
-            for (int y = yVal; y < height; y++) {
-                c_re = (x - width/2) *4.0/ xory;
-                c_im = (y - height/2) *4.0/ xory;
+        for (int x = 0; x < width; x++) {
+            c_re = (x - width/2) * ZOOM + offsetX;
+            
+            for (int y = 0; y < height; y++) {
+                c_im = (y - height/2) * ZOOM + offsetY;
                 
-                WI.getPixelWriter().setArgb(x, y, pallete[mandelbrot(c_re, c_im)]);
+                WI.getPixelWriter().setArgb(x, y, palette[mandelbrot(c_re, c_im)]);
             }
         }
         return WI;
@@ -121,7 +124,7 @@ public class stage2 extends Application {
         return new Task() {
             @Override protected Object call() throws Exception {
                 Platform.runLater(() -> {
-                    currentImageView.setImage(createMandelbrotImage(0,0));
+                    currentImageView.setImage(createMandelbrotImage());
                     calculationInProgress.set(false);
                 });
                 return true;
